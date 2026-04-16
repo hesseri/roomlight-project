@@ -45,12 +45,18 @@ THEMES = {
 def main():
     # RoomLight controller entry point
     parser = argparse.ArgumentParser(description="RoomLight controller")
-    parser.add_argument("command", choices=["status"])
+    parser.add_argument("command", choices=["status", "list-themes"])
     args = parser.parse_args()
 
     if args.command == "status":
         # Placeholder
         print("RoomLight controller running. No active theme.")
+
+    elif args.command == "list-themes":
+        # F-REQ-02: Show all available themes
+        print("Available themes:")
+        for name in THEMES:
+            print(f"  - {name}")
 
 if __name__ == "__main__":
     main()
