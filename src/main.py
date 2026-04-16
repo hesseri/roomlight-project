@@ -1,4 +1,3 @@
-import argparse
 from dataclasses import dataclass
 from enum import Enum
 
@@ -20,7 +19,6 @@ class Theme:
     name: str
     zones: dict[LightingZone, ZoneSettings]
 
-
 # Demo themes, used to validate zone-based approach
 THEMES = {
     "Golden Hour": Theme(
@@ -41,22 +39,23 @@ THEMES = {
     ),
 }
 
+class Controller:
+    # NF-REQ-01: stores active theme locally so guest controls work without network
+    def __init__(self):
+        self.active_theme: Theme | None = None
+        self.all_off: bool = False  # F-REQ-04: bedside master off state
+
+    def set_theme(self, theme: Theme):
+        # F-REQ-02: apply a named theme; also re-enables lights if they were off
+        self.active_theme = theme
+        self.all_off = False
+
+# Single controller instance representing the room
+controller = Controller()
 
 def main():
     # RoomLight controller entry point
-    parser = argparse.ArgumentParser(description="RoomLight controller")
-    parser.add_argument("command", choices=["status", "list-themes"])
-    args = parser.parse_args()
-
-    if args.command == "status":
-        # Placeholder
-        print("RoomLight controller running. No active theme.")
-
-    elif args.command == "list-themes":
-        # F-REQ-02: Show all available themes
-        print("Available themes:")
-        for name in THEMES:
-            print(f"  - {name}")
+    pass
 
 if __name__ == "__main__":
     main()
