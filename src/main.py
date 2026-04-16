@@ -44,11 +44,17 @@ class Controller:
     def __init__(self):
         self.active_theme: Theme | None = None
         self.all_off: bool = False  # F-REQ-04: bedside master off state
+        self.flex_override: ZoneSettings | None = None  # F-REQ-03: guest temporary override
 
     def set_theme(self, theme: Theme):
-        # F-REQ-02: apply a named theme; also re-enables lights if they were off
+        # F-REQ-02: apply a named theme; clears flex and re-enables lights
         self.active_theme = theme
         self.all_off = False
+        self.flex_override = None  # F-REQ-03: one tap on theme button returns to preset
+
+    def set_flex(self, brightness: int, warmth: int):
+        # F-REQ-03: guest override applied on top of active theme
+        self.flex_override = ZoneSettings(brightness=brightness, warmth=warmth)
 
 # Single controller instance representing the room
 controller = Controller()
@@ -56,7 +62,7 @@ controller = Controller()
 def main():
     # Interactive loop: controller stays running and holds state, like the real device
     print("RoomLight Controller")
-    print("Commands: status, list-themes, apply <name>, off, quit")
+    print("Commands: status, list-themes, apply <name>, flex <brightness> <warmth>, off, quit")
 
     while True:
         try:
@@ -80,6 +86,10 @@ def main():
         elif command == "status":
             if controller.all_off:
                 print("All lights OFF")
+            elif controller.flex_override:
+                # F-REQ-03: show Flex Mode indicator when guest has overridden the theme
+                s = controller.flex_override
+                print(f"[Flex Mode] brightness={s.brightness}  warmth={s.warmth}")
             elif controller.active_theme:
                 print(f"Active theme: {controller.active_theme.name}")
                 for zone, settings in controller.active_theme.zones.items():
@@ -98,6 +108,16 @@ def main():
                 controller.set_theme(THEMES[arg])
                 print(f"Theme '{arg}' applied.")
 
+        elif command == "flex":
+            # F-REQ-03: guest adjusts brightness and warmth as temporary override
+            try:
+                brightness, warmth = map(int, arg.split())
+                controller.set_flex(brightness, warmth)
+                print(f"[Flex Mode] brightness={brightness}  warmth={warmth}")
+                print("Use 'apply <theme>' to return to preset.")
+            except (ValueError, AttributeError):
+                print("Usage: flex <brightness 0-100> <warmth 0-100>")
+
         elif command == "off":
             # F-REQ-04: bedside master off, turns all lights off instantly
             controller.all_off = True
@@ -112,7 +132,7 @@ def main():
 
         else:
             print(f"Unknown command: '{command}'")
-            print("Commands: status, list-themes, apply <name>, off, quit")
+            print("Commands: status, list-themes, apply <name>, flex <brightness> <warmth>, off, quit")
 
 if __name__ == "__main__":
     main()
