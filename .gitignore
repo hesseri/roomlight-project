@@ -4,3 +4,4 @@ node_modules/
 *.pdf
 __pycache__/
 *.pyc
+.pytest_cache/
