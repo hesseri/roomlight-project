@@ -63,3 +63,6 @@ pytest tests/test_main.py -v
 - `docs/05_SW_Design.md` -> software design decisions
 - `docs/06_Test_Plan.md` -> test plan
 - `docs/06_Test_Cases.md` -> test cases
+
+## Video presentation
+https://youtu.be/gNK-0QKnh40
